@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Hello, world!'
+    return render_template('index.html')
 
 @app.route('/mirror')
 def get_article():

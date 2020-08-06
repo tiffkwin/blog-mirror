@@ -1,0 +1,21 @@
+<!doctype html>
+<link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+
+<section class="text-gray-500 bg-gray-900 body-font content-center items-center h-screen p-16">
+      <div class="lg:w-2/6 md:w-1/2 bg-gray-800 rounded-lg p-8 flex flex-col m-auto">
+        <h2 class="text-white text-lg font-medium title-font mb-5">Enter a Medium article link</h2>
+        <input class="bg-white rounded border border-gray-400 focus:outline-none focus:border-teal-500 text-base px-4 py-2 mb-4" placeholder="Medium Link" type="url" id="medium-link">
+        <button class="text-white bg-teal-500 border-0 py-2 px-8 focus:outline-none hover:bg-teal-600 rounded text-lg" onClick="mirror()">Go</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  function mirror(){
+    var url = document.getElementById('medium-link').value;
+    if(url.startsWith("https://medium.com")){
+        window.open("/mirror?url=" +  document.getElementById('medium-link').value,"_self")
+    }
+    alert("Please enter a valid Medium article link.")
+  }
+  </script>
