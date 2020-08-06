@@ -24,4 +24,4 @@ def get_iframe():
     return render_template('gist.html', src=src)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=os.getenv('PORT') or 5000)
+    app.run(debug=True, host='0.0.0.0', port=os.getenv('PORT') or 5000)
