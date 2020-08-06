@@ -1,0 +1,143 @@
+<!doctype html>
+<link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+<header class="text-gray-700 body-font">
+  <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center" style="background-color:#38b2ac;">
+    <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-10 h-10 text-white p-2 bg-teal-500 rounded-full" viewBox="0 0 24 24">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+      </svg>
+      <span class="ml-3 text-xl" style="color:white;">blog-mirror</span>
+    </a>
+  </div>
+</header>
+<section class="text-gray-700 body-font overflow-hidden">
+  <div class="container px-5 py-24 mx-auto">
+    <div class="-my-8">
+      <div class="py-8 flex flex-wrap md:flex-no-wrap">
+        <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+        </div>
+        <div class="md:flex-grow" id="content">
+        </div>
+         <div class="md:w-64 md:mb-0 mb-6 flex-shrink-0 flex flex-col">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <script type="text/javascript">
+          window.onload = function() {
+            getPostData();
+        };
+
+        function getPostData(){
+            var request = new XMLHttpRequest();
+
+            // CORS restricts non-medium.com domains from accessing medium.com so...I had to set up a proxy via cors-escape
+            var proxyUrl = "https://kfw-proxy.herokuapp.com/{{url}}?format=json";
+            request.open("GET", proxyUrl);
+
+            request.onload = function() {
+            if (request.status >= 200 && request.status < 400) {
+                // Success!
+                var data = request.responseText.split('])}while(1);</x>')[1] //splits off anti-hijacking code
+                //console.log(data);
+                var data = JSON.parse(data);
+
+                // Retrieves the title, subtitle, and unique slug of each post for 
+                // the profile and then creates an embedly for each
+                var paragraphs = data['payload']['value']['content']['bodyModel']['paragraphs'];
+                for (var i=0; i < paragraphs.length; i++){
+                    createParagraph(paragraphs[i]);
+                }
+            } else {
+                // We reached our target server, but it returned an error
+                console.log("OOP!: The server returned an error.");
+            }
+            };
+
+            request.send();
+
+        }
+
+        async function createParagraph(paragraph){
+            switch(paragraph.type){
+                case 3:
+                    var h1tag = document.createElement('h1');
+                    h1tag.className = 'text-3xl font-bold text-black title-font mb-2';
+                    h1tag.innerText=paragraph.text;
+                    document.getElementById('content').appendChild(h1tag);
+                    break
+                case 4:
+                    var figuretag = document.createElement('figure');
+                    var imgTag = document.createElement('img');
+                    var figcaptionTag = document.createElement('figcaption');
+                    imgTag.src = 'https://miro.medium.com/max/1350/' + paragraph.metadata.id;
+                    figcaptionTag.innerText = paragraph.text;
+                    figuretag.appendChild(imgTag);
+                    figuretag.appendChild(figcaptionTag);
+                    document.getElementById('content').appendChild(figuretag);
+                    break
+                case 1:
+                    var ptag = document.createElement('p');
+                    ptag.className = 'leading-relaxed';
+                    ptag.innerText=paragraph.text;
+                    document.getElementById('content').appendChild(ptag);
+                    break
+                case 11:
+                    var aDiv = document.createElement('div');
+                    var aTag = document.createElement('a');
+                    aTag.id=paragraph.iframe.mediaResourceId;
+                    aTag.style.color = 'blue';
+                    aTag.innerText = 'View Code Snippet';
+                    aDiv.appendChild(aTag);
+                    aDiv.appendChild(document.createElement('br'));
+                    aDiv.appendChild(document.createElement('br'));
+                    document.getElementById('content').appendChild(aDiv);
+                    await getHTML(paragraph.iframe.mediaResourceId, function (response) {
+                        document.getElementById(paragraph.iframe.mediaResourceId).src=response.body.childNodes[1].src;
+                        aTag.href = "/media?src=" + response.body.childNodes[1].src;
+                    });
+    
+                    
+                    break
+                case 8:
+                    var codeDiv = document.createElement('div');
+                    var codetag = document.createElement('code');
+                    codetag.innerText=paragraph.text;
+                    codeDiv.style.backgroundColor='#f1f1f1';
+                    codeDiv.style.padding='20px';
+                    codeDiv.appendChild(codetag);
+                    document.getElementById('content').appendChild(codeDiv);
+                    break
+                case 13:
+                    var h2tag = document.createElement('h2');
+                    h2tag.className = "text-lg font-bold text-black title-font mb-2";
+                    h2tag.innerText = paragraph.text;
+                    document.getElementById('content').appendChild(h2tag);
+                    break
+            }
+            document.getElementById('content').appendChild(document.createElement('br'));
+            
+        }
+
+        function getHTML(mediaResourceId, callback){
+            var request = new XMLHttpRequest();
+            var mediaURL = "https://kfw-proxy.herokuapp.com/https://medium.com/media/" + mediaResourceId
+            
+            request.onload = function() {
+            if (request.status >= 200 && request.status < 400) {
+                // Success!
+                if ( callback && typeof( callback ) === 'function' ) {
+                    callback( this.responseXML );
+                }
+            } else {
+                // We reached our target server, but it returned an error
+                console.log("OOP!: The server returned an error.");
+            }
+            };
+            request.open("GET", mediaURL);
+            request.responseType = 'document';
+            request.send();
+        }
+</script>
