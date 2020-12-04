@@ -14,8 +14,10 @@
   function mirror(){
     var url = document.getElementById('medium-link').value;
     if(url.startsWith("https://")){
-        window.open("/mirror?url=" +  document.getElementById('medium-link').value,"_self")
+        window.open("/mirror?url=" +  document.getElementById('medium-link').value,"_self");
     }
-    alert("Please enter a valid Medium article link.")
+    else {
+        alert("Please enter a valid Medium article link.");
+    }
   }
   </script>
